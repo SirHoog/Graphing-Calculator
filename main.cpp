@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <vector>
 #include <SDL2/SDL.h>
-#include <SDL2_Overrides.hpp>
+#include <SDL2_Overrides.h>
 
 /*TODO:
 * Graph a function ✅
-* Graph a grid behind it
-* Aspect ratio stuff
+* Graph a grid behind it ✅
+* Aspect ratio stuff (dynamic window sizing)
 * Add zoom (not the meeting app XD)
 * Add dynamic screen size
 
@@ -22,14 +22,16 @@ Challenges:
 const char *TITLE = "Graphing Calculator";
 const int SCREEN_HEIGHT = 900, SCREEN_WIDTH = 1280;
 const SDL_Color BG_COLOR = (SDL_Color){0, 0, 0, 0};
+const SDL_Color GRID_COLOR = (SDL_Color){66, 135, 245, 64};
 const SDL_Color GRAPH_COLOR = (SDL_Color){255, 255, 255, 255};
-const int dx = 3; // How many pixels between each x inputted into the graph function
+const int GRID_CELL_SIZE = 50;
+const int dx = 3; // How many pixels between each x inputted into the graph function. It's technically delta x, but I don't care. I'm going to use it because it's shorter.
 // const float zoom = 1;
 std::vector<SDL_Point> graphPoints = {};
 
 float GraphFunction(float x)
 {
-    return x*sin(x / 100);
+    return sin(x / 100) * 100;
 };
 
 int WinMain(int argc, char *argv[])
@@ -60,12 +62,26 @@ int WinMain(int argc, char *argv[])
     };
 
     renderer = SDL_CreateRenderer(window, -1, 0);
-
-    SDL_Event event;
-
+    
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor_O(renderer, BG_COLOR);
     SDL_RenderClear(renderer);
     
+    // Render Grid
+
+    SDL_SetRenderDrawColor_O(renderer, GRID_COLOR);
+
+    for (int i = -SCREEN_WIDTH / 2; i < SCREEN_WIDTH / 2; i += GRID_CELL_SIZE)
+    {
+        for (int j = -SCREEN_HEIGHT / 2; j < SCREEN_HEIGHT / 2; j += GRID_CELL_SIZE)
+        {
+            const SDL_Rect gridCellRect = (SDL_Rect){i + SCREEN_WIDTH / 2, j + SCREEN_HEIGHT / 2, GRID_CELL_SIZE, GRID_CELL_SIZE};
+
+            SDL_RenderDrawRect(renderer, &gridCellRect);
+        }
+    };
+
+    // Render Graph
     SDL_SetRenderDrawColor_O(renderer, GRAPH_COLOR);
 
     for (int i = -SCREEN_WIDTH / 2; i < SCREEN_WIDTH / 2; i += dx)
@@ -78,6 +94,8 @@ int WinMain(int argc, char *argv[])
     SDL_RenderDrawLines(renderer, points, graphPoints.size());
 
     SDL_RenderPresent(renderer); // Render one function once
+
+    SDL_Event event;
 
     while (true)
     {
