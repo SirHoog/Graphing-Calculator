@@ -8,6 +8,7 @@
 * Graph a grid behind it ✅
 * Aspect ratio stuff (dynamic window sizing)
 * Add zoom (not the meeting app XD)
+* Add panning
 * Add dynamic screen size
 
 Challenges:
@@ -31,7 +32,7 @@ std::vector<SDL_Point> graphPoints = {};
 
 float GraphFunction(float x)
 {
-    return sin(x / 100) * 100;
+    return sin(pow(x / 100, 2)) * 100;
 };
 
 int WinMain(int argc, char *argv[])
